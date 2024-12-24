@@ -22,6 +22,7 @@
             font-size: 20px;
             padding: 5px 7px;
             margin: 10px;
+            white-space: nowrap;
         }
         input, button {
             border-radius: 0px;
@@ -105,9 +106,10 @@
         #sign-agency {
             position: absolute;
             top: 34%;
-            left: 66%;
+            left: 76%;
             font-size: 48px;
             font-weight: bold;
+            transform: translate(-50%, 0);
         }
         #sign-logo {
             position: absolute;
@@ -123,7 +125,7 @@
         <p id = "start">JavaScript is required to use this website.</p>
     </noscript>
     <div class="row-div" style="margin-top: 10px;">
-        <button id="detect">Detect&nbsp;Location</button>
+        <button id="detect">Detect Location</button>
         <input id="lat" type="text" placeholder="Latitude" value="44.3805465">
         <input id="lon" type="text" placeholder="Longitude" value="-73.2270890">
         <input id="dest" type="text" placeholder="Destination" value="Hack Club">
@@ -134,19 +136,19 @@
         <input id="background" type="color" value="#004250">
         <p>Text:</p>
         <input id="text" type="color" value="#ffffff">
-        <p>Route&nbsp;#:</p>
+        <p>Route #:</p>
         <input id="route" type="color" value="#e05c6e">
-        <p>Heading&nbsp;&amp;&nbsp;Logo:</p>
+        <p>Heading &amp; Logo:</p>
         <input id="heading" type="color" value="#ffd74f">
-        <p>Agency&nbsp;Icon:</p>
+        <p>Agency Icon:</p>
         <input id="agency" type="color" value="#ffffff">
         <p>Divider:</p>
         <input id="divider" type="color" value="#c4c4c4">
     </div>
     <div class="row-div">
-        <p>Please select an agency:</p>
+        <p>Select a line:</p>
         <div id="agencies" class="row-div" style="margin: 0px;">
-            <button disabled style="background-color: #ffa0a0;">Click 'Generate!' to load agencies</button>
+            <button disabled style="background-color: #ffa0a0;">Click 'Generate!' to load transit lines</button>
         </div>
     </div>
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
@@ -177,9 +179,10 @@
     
     <script type = "text/python">
         from browser import document, ajax, html, window
-        import re
+        import math, re
 
         svgs = {
+            "": "https://upload.wikimedia.org/wikipedia/commons/1/1d/No_image.svg",
             "gtfs_0": "https://corsproxy.io/?url=https://www.svgrepo.com/show/490253/tram.svg",
             "gtfs_1": "https://corsproxy.io/?url=https://www.svgrepo.com/show/346415/subway-fill.svg",
             "gtfs_2": "https://corsproxy.io/?url=https://www.svgrepo.com/show/490124/high-speed-train.svg",
@@ -191,10 +194,12 @@
             "gtfs_11": "https://corsproxy.io/?url=https://www.svgrepo.com/show/490255/trolleybus.svg",
             "gtfs_12": "https://corsproxy.io/?url=https://www.svgrepo.com/show/403846/monorail.svg"
         }
-        route_api = "https://transit.land/api/v2/rest/routes?lon={lon}&lat={lat}&radius={radius}&apikey=" + window.apikey
+        route_api =  "https://transit.land/api/v2/rest/routes?lon={lon}&lat={lat}&radius={radius}&apikey=" + window.apikey
+        agency_api = "https://transit.land/api/v2/rest/agencies/{agency}?apikey=" + window.apikey
         road_api = "https://overpass-api.de/api/interpreter?data=[out:json];way[highway~%22^(motorway|trunk)$%22][%22ref%22](around:{radius},{lat},{lon});out%20tags%20geom%20qt;"
         favicon_api = "https://www.google.com/s2/favicons?domain={domain}&sz=256"
-        radius = 10000 # 10 km
+        road_radius = 10000  # 10 km
+        route_radius = 10000
         sign_data = {
             "heading": 0,
             "route": "HC22",
@@ -206,15 +211,75 @@
 
 
         def abbreviate (agency):
+            if agency.isupper ():
+                if " " not in agency:
+                    return agency # Already an abbreviation
+                return "".join (i [0] for i in agency.split (" ")) # Cannot distinguish based on capitalization
             return "".join (re.findall ("[A-Z]", agency)) # Simple abbreviation using capital letters
 
-        def generate (ev):
-            global svgs, route_api, road_api, radius
-            ajax.get (route_api.format (lat = document ["lat"].value, lon = document ["lon"].value, radius = radius), oncomplete = route_complete, cache = True)
+        def generate (ev, route = True, road = True):
+            global svgs, route_api, road_api, road_radius, route_radius, sign_data
+            document ["agencies"].clear ()
+            sign_data ["type"], sign_data ["agency"], sign_data ["domain"] = "", "", ""
+            if ev is not None: # Triggered manually
+                road_radius, route_radius = 10000, 10000
+
+            if route:
+                ajax.get (route_api.format (lat = document ["lat"].value, lon = document ["lon"].value, radius = route_radius), oncomplete = route_complete, mode = "json", cache = True)
+            if road:
+                ajax.get (road_api.format  (lat = document ["lat"].value, lon = document ["lon"].value, radius = road_radius ), oncomplete = road_complete, mode = "json", cache = True)
         document ["generate"].bind ("click", generate)
 
         def route_complete (res):
-            pass
+            global sign_data, route_radius
+
+            res = res.json ["routes"]
+            if not res:
+                route_radius += 10000
+                generate (None, road = False)
+                return
+
+            for i in res:
+                agency = html.BUTTON (i ["route_long_name"] if i ["route_long_name"] else i ["route_short_name"], id = i ["id"])
+                def agency_click (ev, route_type = i ["route_type"], agency_id = i ["agency"] ["id"]):
+                    sign_data ["type"] = f"gtfs_{route_type}"
+                    ajax.get (agency_api.format (agency = agency_id), oncomplete = agency_complete, mode = "json", cache = True)
+                agency.bind ("click", agency_click)
+                document ["agencies"] <= agency
+            update_sign (None)
+
+        def agency_complete (res):
+            global sign_data
+            res = res.json ["agencies"] [0]
+            sign_data ["agency"] = abbreviate (res ["agency_name"])
+            sign_data ["domain"] = res ["agency_url"]
+            update_sign (None)
+
+        def road_complete (res):
+            global sign_data, road_radius
+            def dist (point):
+                return window.haversine (document ["lat"].value, document ["lon"].value, point ["lat"], point ["lon"])
+
+            res = res.json ["elements"]
+            if not res:
+                road_radius += 10000
+                generate (None, route = False)
+                return
+
+            points = []
+            for j, i in enumerate (res):
+                for k in i ["geometry"]:
+                    points.append ((k, j)) # (point, index)
+            closest = min (points, key = lambda x: dist (x [0]))
+            closest_way = res [closest [1]]
+
+            sign_data ["route"] = closest_way ["tags"] ["ref"]
+            sign_data ["distance"] = f"{math.floor (dist (closest [0]))}m"
+
+            sign_data ["heading"] = math.degrees (math.atan2 (closest [0] ["lon"] - float (document ["lon"].value),
+                                                              closest [0] ["lat"] - float (document ["lat"].value)))
+            update_sign (None)
+            
 
         def geolocate (ev):
             def success (pos):
@@ -245,7 +310,10 @@
             document ["sign-agency"].style.color = document ["agency"].value
             document ["sign-agency"].innerHTML = sign_data ["agency"]
 
-            document ["sign-logo"].src = favicon_api.format (domain = sign_data ["domain"])
+            if sign_data ["domain"]:
+                document ["sign-logo"].src = favicon_api.format (domain = sign_data ["domain"])
+            else:
+                document ["sign-logo"].src = "https://upload.wikimedia.org/wikipedia/commons/1/1d/No_image.svg"
 
             gtfs_type_html = f"""
                 <load-svg id="sign-gtfs-type" src="{svgs [sign_data ['type']]}">
@@ -266,6 +334,8 @@
         update_sign (None)
     </script>
     <script>
+
+        // https://stackoverflow.com/a/75189076
         customElements.define ('load-svg', class extends HTMLElement {
             async connectedCallback () {
             this.attachShadow ({mode: "open"})
@@ -273,6 +343,20 @@
             this.shadowRoot.append (...this.childNodes);
             }
         });
+
+        // https://stackoverflow.com/a/11172685
+        function haversine(lat1, lon1, lat2, lon2){  // generally used geo measurement function
+            var R = 6378.137; // Radius of earth in KM
+            var dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+            var dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            var d = R * c;
+            return d * 1000; // meters
+        }
+
         var tk = null;
         while (tk == null || tk == "") {
             tk = prompt ("Please enter a transit.land API key:", localStorage.getItem ("transitland_apikey") || "");
