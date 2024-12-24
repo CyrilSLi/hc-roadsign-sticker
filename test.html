@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MRT Sign</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #003a4f; /* Background color of the sign */
+    }
+    .sign {
+      width: 600px;
+      height: 400px;
+      background-color: #003a4f;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .top-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      width: 100px;
+      height: auto;
+    }
+    .mrt {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .arrow {
+      font-size: 30px;
+      color: yellow;
+    }
+    .bottom-section {
+      text-align: center;
+    }
+    .ref {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #e42f5b;
+      color: white;
+      border-radius: 10px;
+      padding: 5px 10px;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="sign">
+    <!-- Top Section -->
+    <div class="top-section">
+      <!-- Yellow Logo -->
+      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50">
+        <path d="M10 25C20 5, 40 5, 50 25C60 45, 80 45, 90 25" fill="none" stroke="#FFC500" stroke-width="8"/>
+      </svg>
+
+      <!-- MRT Icon and Text -->
+      <div class="mrt">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="40" height="40" fill="white">
+          <circle cx="32" cy="32" r="30" fill="white" />
+          <rect x="22" y="16" width="20" height="30" rx="5" ry="5" fill="#003a4f"/>
+          <line x1="22" y1="46" x2="42" y2="46" stroke="#003a4f" stroke-width="3"/>
+        </svg>
+        <span>MRT</span>
+      </div>
+    </div>
+
+    <!-- Divider Line -->
+    <hr style="border: 1px solid #bbb; margin: 10px 0;">
+
+    <!-- Bottom Section -->
+    <div class="bottom-section">
+      <div class="arrow">↑</div>
+      <h1>Hack Club</h1>
+      <div>
+        <span class="ref">HC22</span>
+        <span>375m</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
