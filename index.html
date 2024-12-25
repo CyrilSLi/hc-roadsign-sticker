@@ -5,12 +5,26 @@
     <meta charset = "utf-8">
     <script src = "https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6/dist/dom-to-image.min.js"></script>
     <style>
         html {
             --heading-color: #ffffff;
             --heading-rotate: -90deg;
             --mode-color: #ffffff;
+        }
+        @media print {
+            body {
+                visibility: hidden;
+            }
+            #sign {
+                visibility: visible;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+            @page {
+                size: landscape;
+            }
         }
         * {
             margin: 0px;
@@ -151,8 +165,11 @@
             <button disabled style="background-color: #ffa0a0;">Click 'Generate!' to load transit lines</button>
         </div>
     </div>
-    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <p>Click the sign to refresh the preview.</p>
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 10px;">
+        <div class="row-div">
+            <p>Click the sticker to refresh.</p>
+            <button id="download">Print Sticker</button>
+        </div>
         <div id="sign">
             <div id="sign-divider"></div>
             <load-svg id="sign-heading" src="https://upload.wikimedia.org/wikipedia/commons/1/12/Right_arrow.svg">
@@ -208,7 +225,6 @@
             "type": "gtfs_1",
             "domain": "https://www.lta.gov.sg/"
         }
-
 
         def abbreviate (agency):
             if agency.isupper ():
@@ -328,9 +344,14 @@
                 </load-svg>
             """
             document ["sign-gtfs-container"].innerHTML = gtfs_type_html
-
         document ["sign"].bind ("click", update_sign)
-        
+
+        def download (ev):
+            document ["sign"].style.position = "fixed"
+            window.print ()
+            document ["sign"].style.position = ""
+        document ["download"].bind ("click", download)
+
         update_sign (None)
     </script>
     <script>
