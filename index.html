@@ -178,14 +178,10 @@
             <load-svg id="sign-heading" src="https://upload.wikimedia.org/wikipedia/commons/1/12/Right_arrow.svg">
                 <style>
                     svg {
-                        -webkit-transform: rotate(var(--heading-rotate)) scale(0.22);
-                        -moz-transform: rotate(var(--heading-rotate)) scale(0.22);
-                        -o-transform: rotate(var(--heading-rotate)) scale(0.22);
-                        -ms-transform: rotate(var(--heading-rotate)) scale(0.22);
                         transform: rotate(var(--heading-rotate)) scale(0.22);
                         
                     }
-                    svg * {
+                    svg *, svg use>svg { <!-- https://stackoverflow.com/questions/27866893/svg-fill-not-being-applied-in-firefox -->
                         fill: var(--heading-color) !important;
                     }
                 </style>
