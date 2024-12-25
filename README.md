@@ -1,3 +1,5 @@
+**Coming from High Seas?** This project was inspired by [this post](https://hackclub.slack.com/archives/C07TSCMB4LC/p1735093405128619) in the Hack Club Slack.
+
 # HC-Roadsign-Sticker
 
 This is a web application which generates stickers similar to [this](https://cloud-20b5i3004-hack-club-bot.vercel.app/0image__1_.png) for an arbitrary coordinate.
