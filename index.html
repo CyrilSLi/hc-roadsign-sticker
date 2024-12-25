@@ -181,7 +181,7 @@
                         transform: rotate(var(--heading-rotate)) scale(0.22);
                         
                     }
-                    svg *, svg use>svg {
+                    svg * {
                         fill: var(--heading-color) !important;
                     }
                 </style>
@@ -375,8 +375,9 @@
         // https://stackoverflow.com/a/75189076
         customElements.define ('load-svg', class extends HTMLElement {
             async connectedCallback () {
-            this.attachShadow ({mode: "open"})
-                .innerHTML = await (await fetch (this.getAttribute ("src"))).text ();
+            var innerHTML = await (await fetch (this.getAttribute ("src"))).text ();
+            innerHTML = innerHTML.replace (/fill:.*?\;/g, "");
+            this.attachShadow ({mode: "open"}).innerHTML = innerHTML;
             this.shadowRoot.append (...this.childNodes);
             }
         });
