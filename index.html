@@ -234,6 +234,8 @@
                 if " " not in agency:
                     return agency # Already an abbreviation
                 return "".join (i [0] for i in agency.split (" ")) # Cannot distinguish based on capitalization
+            elif agency.islower ():
+                return "".join (i [0].upper () for i in agency.split (" ")) # Capitalize each word
             return "".join (re.findall ("[A-Z]", agency)) # Simple abbreviation using capital letters
 
         def generate (ev, route = True, road = True):
