@@ -178,11 +178,12 @@
             <load-svg id="sign-heading" src="https://upload.wikimedia.org/wikipedia/commons/1/12/Right_arrow.svg">
                 <style>
                     svg {
+                        -webkit-transform: rotate(var(--heading-rotate)) scale(0.22);
+                        -moz-transform: rotate(var(--heading-rotate)) scale(0.22);
+                        -o-transform: rotate(var(--heading-rotate)) scale(0.22);
+                        -ms-transform: rotate(var(--heading-rotate)) scale(0.22);
                         transform: rotate(var(--heading-rotate)) scale(0.22);
-                        -webkit-transform: rotate(90deg) scale(0.22);
-                        -moz-transform: rotate(90deg) scale(0.22);
-                        -o-transform: rotate(90deg) scale(0.22);
-                        -ms-transform: rotate(90deg) scale(0.22);
+                        
                     }
                     svg * {
                         fill: var(--heading-color) !important;
