@@ -140,10 +140,13 @@
     </noscript>
     <div class="row-div" style="margin-top: 10px;">
         <button id="detect">Detect Location</button>
-        <input id="lat" type="text" placeholder="Latitude" value="44.3805465">
-        <input id="lon" type="text" placeholder="Longitude" value="-73.2270890">
-        <input id="dest" type="text" placeholder="Destination" value="Hack Club">
-        <button id="generate" style="background-color: #a0ffa0;">Generate!</button>
+        <form id="generate" class="row-div" style="margin: 0px; flex: 1; overflow-x: visible;" action="javascript:void (0);">
+            <input id="lat" type="number" step="any" placeholder="Latitude" required>
+            <input id="lon" type="number" step="any" placeholder="Longitude" required>
+            <input id="dest" type="text" placeholder="Destination" required>
+            <button type="submit" style="background-color: #a0ffa0;">Generate!</button>
+        </form>
+        <button id="example">Example</button>
     </div>
     <div class="row-div">
         <p>Background:</p>
@@ -244,7 +247,7 @@
                 ajax.get (route_api.format (lat = document ["lat"].value, lon = document ["lon"].value, radius = route_radius), oncomplete = route_complete, mode = "json", cache = True)
             if road:
                 ajax.get (road_api.format  (lat = document ["lat"].value, lon = document ["lon"].value, radius = road_radius ), oncomplete = road_complete, mode = "json", cache = True)
-        document ["generate"].bind ("click", generate)
+        document ["generate"].bind ("submit", generate)
 
         def route_complete (res):
             global sign_data, route_radius
@@ -295,7 +298,6 @@
             sign_data ["heading"] = math.degrees (math.atan2 (closest [0] ["lon"] - float (document ["lon"].value),
                                                               closest [0] ["lat"] - float (document ["lat"].value)))
             update_sign (None)
-            
 
         def geolocate (ev):
             def success (pos):
@@ -352,6 +354,19 @@
             document ["sign"].style.position = ""
         document ["download"].bind ("click", download)
 
+        def example (ev):
+            document ["lat"].value = "44.3805465"
+            document ["lon"].value = "-73.2270890"
+            document ["dest"].value = "Hack Club"
+            document ["background"].value = "#004250"
+            document ["text"].value = "#ffffff"
+            document ["route"].value = "#e05c6e"
+            document ["heading"].value = "#ffd74f"
+            document ["agency"].value = "#ffffff"
+            document ["divider"].value = "#c4c4c4"
+            generate (ev) # Manual trigger
+        document ["example"].bind ("click", example)
+
         update_sign (None)
     </script>
     <script>
@@ -378,7 +393,11 @@
             return d * 1000; // meters
         }
 
-        var tk = null;
+        var tk = new URLSearchParams (window.location.search).get ("apikey");
+        if (tk) {
+            localStorage.setItem ("transitland_apikey", tk);
+            history.replaceState (null, "", location.href.split ("?")[0]);
+        }
         while (tk == null || tk == "") {
             tk = prompt ("Please enter a transit.land API key:", localStorage.getItem ("transitland_apikey") || "");
         }
