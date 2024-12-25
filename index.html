@@ -238,12 +238,12 @@
 
         def generate (ev, route = True, road = True):
             global svgs, route_api, road_api, road_radius, route_radius, sign_data
-            document ["agencies"].clear ()
             sign_data ["type"], sign_data ["agency"], sign_data ["domain"] = "", "", ""
             if ev is not None: # Triggered manually
                 road_radius, route_radius = 10000, 10000
 
             if route:
+                document ["agencies"].clear ()
                 ajax.get (route_api.format (lat = document ["lat"].value, lon = document ["lon"].value, radius = route_radius), oncomplete = route_complete, mode = "json", cache = True)
             if road:
                 ajax.get (road_api.format  (lat = document ["lat"].value, lon = document ["lon"].value, radius = road_radius ), oncomplete = road_complete, mode = "json", cache = True)
