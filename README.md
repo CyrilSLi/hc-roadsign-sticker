@@ -12,7 +12,7 @@ Click `Example` to see an example sticker, or:
 
 1. Enter the latitude and longitude of a location, or click `Detect Location` to use your current location.
 2. Add a destination name, and customize the colors if desired.
-3. Select a transit line to display the name and logo of its agency.
+3. Select a transit line to display its vehicle type as an icon and the name and logo of its agency.
 4. Click `Generate!` or press `Enter` to generate the sticker.
 
 Click on the sticker to reload without regenerating (e.g. after changing the colors or destination name).
